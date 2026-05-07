@@ -302,7 +302,8 @@ const getDeliveryBoys = async (req, res) => {
 // @route   PUT /api/orders/:id/cash-collected
 // @access  Private/DeliveryBoy
 const confirmCashCollected = async (req, res) => {
-    const order = await Order.findById(req.params.id);
+    const User = require('../models/User');
+    const order = await Order.findById(req.params.id).populate('user', 'name email').populate('assignedDeliveryBoy', 'name');
     if (order) {
         if (order.paymentMethod !== 'COD') {
             return res.status(400).json({ message: 'This is not a COD order' });
@@ -312,6 +313,30 @@ const confirmCashCollected = async (req, res) => {
         order.paymentResult = { status: 'Cash Collected by Delivery Boy', update_time: new Date().toISOString() };
         order.deliveryUpdates.push({ status: 'Cash Collected', note: 'Cash payment confirmed by delivery boy' });
         const updatedOrder = await order.save();
+
+        // Notify admin by email
+        try {
+            const admin = await User.findOne({ role: 'admin' });
+            if (admin?.email) {
+                sendEmail({
+                    to: admin.email,
+                    subject: `💰 Cash Collected: Order #${order._id.toString().substring(0,8)}`,
+                    html: `<div style="font-family:'Inter',Arial,sans-serif;max-width:580px;margin:0 auto;padding:32px">
+                        <h1 style="font-weight:900;letter-spacing:-2px;margin:0 0 4px">Graphpaper<span style="color:#E50010">.</span></h1>
+                        <h2 style="color:#16a34a;margin:24px 0 12px">💵 Cash Payment Received</h2>
+                        <p style="color:#555;line-height:1.7">
+                            Delivery personnel <strong>${order.assignedDeliveryBoy?.name || 'Delivery Boy'}</strong> has successfully collected the cash for Order <strong>#${order._id.toString().substring(0,8)}</strong> from customer <strong>${order.user?.name}</strong>.
+                        </p>
+                        <div style="background:#DCFCE7;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #BBF7D0">
+                            <p style="margin:0;font-size:14px;color:#166534">Amount Collected: <strong style="font-size:18px">₹${order.totalPrice?.toFixed(2)}</strong></p>
+                            <p style="margin:8px 0 0;font-size:14px;color:#166534">Time: ${new Date().toLocaleString()}</p>
+                        </div>
+                        <p style="color:#aaa;font-size:12px">— Graphpaper Delivery System</p>
+                    </div>`,
+                }).catch(() => {});
+            }
+        } catch (e) {}
+
         res.json(updatedOrder);
     } else {
         res.status(404).json({ message: 'Order not found' });

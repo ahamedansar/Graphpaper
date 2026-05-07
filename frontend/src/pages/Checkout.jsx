@@ -104,7 +104,11 @@ const Checkout = () => {
 
       // STEP 3: Non-Razorpay (COD / Bank Transfer etc.)
       clearCart();
-      toast.success('Wholesale order successfully placed!');
+      if (paymentMethod === 'Google Pay (GPay)') {
+        toast.success('✅ UPI Payment verified successfully! Order placed.');
+      } else {
+        toast.success('Wholesale order successfully placed!');
+      }
       navigate(`/orders/${createdOrder._id}`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to place order');
@@ -198,7 +202,10 @@ const Checkout = () => {
                   {showGPayQR && (
                      <div className="mt-4 ms-5 p-4 bg-white border text-center" style={{ maxWidth: '250px' }}>
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=graphpaper-wholesale-payment" alt="GPay QR Scanner" className="mb-3 img-fluid" />
-                        <p className="small text-muted mb-0 fw-bold">Scan with GPay App</p>
+                        <p className="small text-muted mb-2 fw-bold">Scan with GPay App</p>
+                        <div style={{ fontSize: '11px', color: '#16a34a', backgroundColor: '#DCFCE7', padding: '6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                          ✓ Scanning simulates successful payment
+                        </div>
                      </div>
                   )}
                 </label>
