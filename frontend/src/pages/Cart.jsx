@@ -104,7 +104,7 @@ const Cart = () => {
                  
                  <div className="d-flex justify-content-between mb-3 fs-5">
                    <span className="opacity-75">Subtotal ({cartCount})</span>
-                   <span className="fw-bold">${cartTotal}</span>
+                   <span className="fw-bold">₹{cartTotal}</span>
                  </div>
                  
                  <div className="d-flex justify-content-between mb-4 fs-6 opacity-75">
@@ -116,7 +116,7 @@ const Cart = () => {
                  
                  <div className="d-flex justify-content-between align-items-end mb-4 pb-2">
                    <span className="fw-semibold fs-5 opacity-75">Total</span>
-                   <span className="fw-bold display-6">${cartTotal}</span>
+                   <span className="fw-bold display-6">₹{cartTotal}</span>
                  </div>
                  
                  <button 
