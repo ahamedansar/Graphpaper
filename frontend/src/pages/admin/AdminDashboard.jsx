@@ -8,6 +8,7 @@ const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,9 +16,11 @@ const AdminDashboard = () => {
     Promise.all([
       api.get('/orders', config),
       api.get('/products'),
-    ]).then(([ordersRes, productsRes]) => {
+      api.get('/orders/delivery-boys', config),
+    ]).then(([ordersRes, productsRes, boysRes]) => {
       setOrders(ordersRes.data);
       setProducts(productsRes.data);
+      setDeliveryBoys(boysRes.data);
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user]);
 
@@ -31,7 +34,7 @@ const AdminDashboard = () => {
     { label: 'Total Orders', value: orders.length, icon: <ShoppingBag size={22} />, color: '#4F46E5', bg: '#EEF2FF', trend: '+12% this month' },
     { label: 'Pending Review', value: pendingOrders, icon: <Clock size={22} />, color: '#d97706', bg: '#FEF9C3', trend: 'Needs attention', urgent: pendingOrders > 0 },
     { label: 'In Transit', value: confirmedOrders, icon: <Truck size={22} />, color: '#0284c7', bg: '#E0F2FE', trend: 'On the way' },
-    { label: 'Delivered', value: deliveredOrders, icon: <CheckCircle size={22} />, color: '#16a34a', bg: '#DCFCE7', trend: 'Successfully done' },
+    { label: 'Delivery Boys', value: deliveryBoys.length, icon: <Users size={22} />, color: '#059669', bg: '#D1FAE5', trend: 'Active personnel' },
     { label: 'Total Products', value: products.length, icon: <Package size={22} />, color: '#9333ea', bg: '#F3E8FF', trend: `${lowStockProducts} low stock` },
     { label: 'Revenue (Paid)', value: `₹${totalRevenue >= 1000 ? (totalRevenue / 1000).toFixed(1) + 'K' : totalRevenue.toFixed(0)}`, icon: <TrendingUp size={22} />, color: '#E50010', bg: '#FFF1F2', trend: 'From paid orders' },
   ];

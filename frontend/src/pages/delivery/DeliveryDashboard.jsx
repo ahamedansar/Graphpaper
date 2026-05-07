@@ -24,7 +24,6 @@ const DeliveryDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(null);
 
-  // New Delivery Boy state
   const [newDbName, setNewDbName] = useState('');
   const [newDbPhone, setNewDbPhone] = useState('');
   const [showAddDb, setShowAddDb] = useState(false);
@@ -32,11 +31,6 @@ const DeliveryDashboard = () => {
 
   // Selected delivery boy per order
   const [selectedDb, setSelectedDb] = useState({});
-
-  // Profile edit
-  const [editingName, setEditingName] = useState(!user?.name || user.name === 'Delivery Boy');
-  const [nameInput, setNameInput]     = useState(user?.name || '');
-  const [savingName, setSavingName]   = useState(false);
 
   const config = { headers: { Authorization: `Bearer ${user?.token}` } };
 
@@ -76,23 +70,7 @@ const DeliveryDashboard = () => {
     }
   };
 
-  // Save delivery boy name
-  const saveName = async () => {
-    if (!nameInput.trim()) return toast.error('Name cannot be empty');
-    setSavingName(true);
-    try {
-      const { data } = await api.put('/users/profile', { name: nameInput.trim() }, config);
-      const updated = { ...user, name: data.name };
-      setUser(updated);
-      localStorage.setItem('userInfo', JSON.stringify(updated));
-      toast.success('Name saved!');
-      setEditingName(false);
-    } catch {
-      toast.error('Failed to save name');
-    } finally {
-      setSavingName(false);
-    }
-  };
+
 
   // Self-assign: delivery boy picks an available order
   const takeOrder = async (orderId) => {
@@ -147,37 +125,16 @@ const DeliveryDashboard = () => {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
 
-      {/* ── Profile Section ─────────────────────────── */}
+      {/* ── Dispatch Center Header & Metrics ─────────────────────────── */}
       <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px 28px', marginBottom: '28px', border: '1px solid #F1F5F9', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#FEF9C3', border: '2px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <User size={22} color="#d97706" />
+              <Truck size={22} color="#d97706" />
             </div>
             <div>
-              <p style={{ margin: '0 0 2px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', color: '#d97706' }}>Delivery Boy</p>
-              {editingName ? (
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    value={nameInput}
-                    onChange={e => setNameInput(e.target.value)}
-                    placeholder="Enter your name..."
-                    style={{ border: '2px solid #FDE68A', borderRadius: '8px', padding: '6px 12px', fontSize: '15px', fontWeight: '700', outline: 'none', fontFamily: "'Inter', sans-serif" }}
-                    onKeyDown={e => e.key === 'Enter' && saveName()}
-                    autoFocus
-                  />
-                  <button onClick={saveName} disabled={savingName} style={{ backgroundColor: '#d97706', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Check size={14} /> {savingName ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h2 style={{ margin: 0, fontWeight: '900', fontSize: '1.3rem', color: '#1a1a1a' }}>{user?.name}</h2>
-                  <button onClick={() => { setEditingName(true); setNameInput(user?.name || ''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: '2px' }}>
-                    <Edit2 size={14} />
-                  </button>
-                </div>
-              )}
+              <p style={{ margin: '0 0 2px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', color: '#d97706' }}>Graphpaper</p>
+              <h2 style={{ margin: 0, fontWeight: '900', fontSize: '1.3rem', color: '#1a1a1a' }}>Dispatch Center</h2>
             </div>
           </div>
           {/* Stats */}
