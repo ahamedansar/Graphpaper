@@ -22,9 +22,9 @@ const Contact = () => {
     };
 
     const contactMethods = [
-        { icon: <Phone size={24} />, title: 'Call Us', detail: '+91 70120 56376', desc: 'Mon-Sat, 9AM to 6PM IST' },
+        { icon: <Phone size={24} />, title: 'Call / WhatsApp', detail: '+91 70120 56376', desc: '+91 98953 81350 · Mon-Sat, 9AM–6PM IST' },
         { icon: <Mail size={24} />, title: 'Email Us', detail: 'ahamedansarnasim@gmail.com', desc: 'Response within 24 hours' },
-        { icon: <MapPin size={24} />, title: 'Visit Us', detail: 'Andheri East, Mumbai', desc: 'Plot 12, MIDC, MH 400069' },
+        { icon: <MapPin size={24} />, title: 'Head Office', detail: 'Kasaragod, Kerala – 671121', desc: 'Factory: Tirupur, Tamil Nadu – 641604' },
     ];
 
     return (
@@ -35,7 +35,7 @@ const Contact = () => {
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                     <span style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', color: '#E50010', display: 'block', marginBottom: '16px' }}>Let's Connect</span>
                     <h1 style={{ fontWeight: '900', fontSize: '3rem', letterSpacing: '-2px', marginBottom: '16px' }}>Contact Graphpaper Wholesale.</h1>
-                    <p style={{ color: '#888', fontSize: '18px', maxWidth: '600px', margin: '0 auto' }}>Have a question about our bulk orders or shipping? Our team is here to help you scaling your business.</p>
+                    <p style={{ color: '#888', fontSize: '18px', maxWidth: '600px', margin: '0 auto' }}>Have a question about bulk orders or shipping? Reach us directly on WhatsApp or drop a message — Ahamed Ansar and the team will get back to you quickly.</p>
                 </div>
             </section>
 
@@ -102,13 +102,13 @@ const Contact = () => {
                                 <div style={{ marginTop: '64px', borderTop: '1px solid #eee', paddingTop: '48px' }}>
                                     <h4 style={{ fontWeight: '800', fontSize: '18px', marginBottom: '24px' }}>Connect With Us</h4>
                                     <div className="d-flex flex-column gap-3">
-                                        <a href="https://wa.me/917012056376?text=Hi%20Graphpaper!%20I%20would%20like%20to%20know%20more%20about%20your%20wholesale%20products." target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#000', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', backgroundColor: '#DCFCE7', borderRadius: '12px', border: '1px solid #BBF7D0' }}>
+                        <a href="https://wa.me/917012056376?text=Hi%20Graphpaper!%20I%20would%20like%20to%20know%20more%20about%20your%20wholesale%20products." target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#000', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', backgroundColor: '#DCFCE7', borderRadius: '12px', border: '1px solid #BBF7D0' }}>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                                            <span style={{ color: '#15803d' }}>Chat on WhatsApp <ChevronRight size={14} /></span>
+                                            <span style={{ color: '#15803d' }}>Chat on WhatsApp (+91 70120 56376) <ChevronRight size={14} /></span>
                                         </a>
-                                        <a href="https://instagram.com/graphpaper.wholesale" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#000', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', backgroundColor: '#FFF1F2', borderRadius: '12px', border: '1px solid #FFE4E6' }}>
+                                        <a href="https://instagram.com/ahamedansarr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#000', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', backgroundColor: '#FFF1F2', borderRadius: '12px', border: '1px solid #FFE4E6' }}>
                                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E50010" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-                                            <span>@graphpaper.wholesale <ChevronRight size={14} /></span>
+                                            <span>@ahamedansarr (Instagram) <ChevronRight size={14} /></span>
                                         </a>
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@ const Contact = () => {
                         scrolling="no" 
                         marginHeight="0" 
                         marginWidth="0" 
-                        src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Andheri%20East,%20Mumbai,%20Maharashtra+(Graphpaper%20Wholesale)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
+                    src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Kasaragod,+Kerala+(Graphpaper+Wholesale)&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
                         style={{ filter: 'grayscale(1) contrast(1.2) opacity(0.8)' }}
                     ></iframe>
                 </div>

@@ -31,7 +31,7 @@ const About = () => {
             <span style={{ color: '#E50010' }}>Quality Wholesale</span>
           </h1>
           <p style={{ fontSize: '18px', color: '#888', maxWidth: '600px', margin: '0 auto', lineHeight: 1.7 }}>
-            Born in Mumbai, Graphpaper set out to redefine the B2B textile landscape. We combine industrial precision with modern design.
+            Founded by Ahamed Ansar from Kasaragod, Kerala — Graphpaper set out to redefine the B2B textile landscape. With our manufacturing rooted in Tirupur, Tamil Nadu, we combine industrial precision with modern design.
           </p>
         </div>
       </section>
@@ -55,9 +55,9 @@ const About = () => {
           <div className="row g-5 align-items-center">
             <div className="col-lg-6">
               <div style={{ backgroundColor: '#F8F8F8', borderRadius: '32px', padding: '48px', position: 'relative' }}>
-                <h2 style={{ fontWeight: '900', fontSize: '2.25rem', marginBottom: '24px', letterSpacing: '-1px' }}>Precision Weaving, Global Standards.</h2>
+                <h2 style={{ fontWeight: '900', fontSize: '2.25rem', marginBottom: '24px', letterSpacing: '-1px' }}>Tirupur Manufacturing. Kerala Roots. National Reach.</h2>
                 <p style={{ color: '#444', fontSize: '16px', lineHeight: '1.8', marginBottom: '32px' }}>
-                  At Graphpaper, we focus on the "Grid" — the foundation of every high-GSM fabric. Our manufacturing process is strictly controlled to ensure that the batch you receive today is exactly like the batch you receive a year from now.
+                  At Graphpaper, we focus on the "Grid" — the foundation of every high-GSM fabric. Our Tirupur, Tamil Nadu manufacturing unit is strictly quality-controlled to ensure that the batch you receive today is exactly like the batch you receive a year from now. Managed by Ahamed Ansar from our head office in Kasaragod, Kerala.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
