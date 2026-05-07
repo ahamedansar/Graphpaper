@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "projects": [
+    {
+      "name": "graphpaper-frontend",
+      "src": "frontend"
+    },
+    {
+      "name": "graphpaper-backend",
+      "src": "backend"
+    }
+  ]
+}
