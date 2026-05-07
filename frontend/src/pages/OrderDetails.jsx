@@ -323,9 +323,16 @@ const OrderDetails = () => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
               <span style={{ color: '#888' }}>Status</span>
-              <span style={{ fontWeight: '700', color: order.isPaid ? '#16a34a' : '#d97706' }}>
-                {order.isPaid ? `Paid on ${new Date(order.paidAt).toLocaleDateString('en-IN')}` : 'Pending'}
-              </span>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontWeight: '700', color: order.isPaid ? '#16a34a' : '#d97706' }}>
+                  {order.isPaid ? `Paid on ${new Date(order.paidAt).toLocaleDateString('en-IN')}` : 'Pending'}
+                </span>
+                {!order.isPaid && order.paymentMethod === 'COD' && order.orderStatus === 'Delivered' && (
+                  <div style={{ fontSize: '11px', color: '#E50010', fontWeight: '800', marginTop: '4px', backgroundColor: '#FFF1F2', padding: '4px 8px', borderRadius: '4px' }}>
+                    PLEASE PAY CASH TO RIDER
+                  </div>
+                )}
+              </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', paddingTop: '10px', borderTop: '1px solid #F1F5F9' }}>
               <span style={{ fontWeight: '700', color: '#1a1a1a' }}>Total</span>
