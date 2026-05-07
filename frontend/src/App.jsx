@@ -78,7 +78,7 @@ function App() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {!isIsolatedRoute && <Header />}
 
-      <main style={{ flex: 1 }}>
+      <main key={location.pathname} className="fade-in" style={{ flex: 1 }}>
         <Routes>
           {/* Auth / Splash */}
           <Route path="/" element={<SplashPage />} />
