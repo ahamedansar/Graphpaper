@@ -39,10 +39,9 @@ const addOrderItems = async (req, res) => {
 // @route   GET /api/orders/:id
 // @access  Private
 const getOrderById = async (req, res) => {
-    const order = await Order.findById(req.params.id).populate(
-        'user',
-        'name email'
-    );
+    const order = await Order.findById(req.params.id)
+        .populate('user', 'name email')
+        .populate('assignedDeliveryBoy', 'name email phone');
 
     if (order) {
         res.json(order);
@@ -132,7 +131,8 @@ const updateOrderToConfirmed = async (req, res) => {
 // @route   GET /api/orders/myorders
 // @access  Private
 const getMyOrders = async (req, res) => {
-    const orders = await Order.find({ user: req.user._id });
+    const orders = await Order.find({ user: req.user._id })
+        .populate('assignedDeliveryBoy', 'name email phone');
     res.json(orders);
 };
 
@@ -140,7 +140,9 @@ const getMyOrders = async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = async (req, res) => {
-    const orders = await Order.find({}).populate('user', 'id name');
+    const orders = await Order.find({})
+        .populate('user', 'id name')
+        .populate('assignedDeliveryBoy', 'name email phone');
     res.json(orders);
 };
 
@@ -220,14 +222,64 @@ const updateDeliveryStatus = async (req, res) => {
     }
 };
 
-// @desc    Get orders assigned to logged-in delivery boy
+// @desc    Delivery boy self-assigns a confirmed order (takes it from pool)
+// @route   PUT /api/orders/:id/self-assign
+// @access  Private/DeliveryBoy
+const selfAssignOrder = async (req, res) => {
+    const User = require('../models/User');
+    const order = await Order.findById(req.params.id).populate('user', 'name email');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    if (order.orderStatus !== 'Confirmed') return res.status(400).json({ message: 'Order is not available for pickup' });
+    if (order.assignedDeliveryBoy) return res.status(400).json({ message: 'Order already taken by another delivery boy' });
+
+    order.assignedDeliveryBoy = req.user._id;
+    order.orderStatus = 'Assigned';
+    order.deliveryUpdates.push({ status: 'Assigned', note: `Taken by delivery boy: ${req.user.name}` });
+    await order.save();
+
+    // Notify admin by email
+    try {
+        const admin = await User.findOne({ role: 'admin' });
+        if (admin?.email) {
+            sendEmail({
+                to: admin.email,
+                subject: `🚚 Order #${order._id.toString().substring(0,8)} picked up by ${req.user.name}`,
+                html: `<div style="font-family:'Inter',Arial,sans-serif;max-width:580px;margin:0 auto;padding:32px">
+                    <h1 style="font-weight:900;letter-spacing:-2px;margin:0 0 4px">Graphpaper<span style="color:#E50010">.</span></h1>
+                    <h2 style="color:#4F46E5;margin:24px 0 12px">🚴 Delivery Boy Has Taken An Order</h2>
+                    <p style="color:#555;line-height:1.7">
+                        <strong>${req.user.name}</strong> has accepted Order <strong>#${order._id.toString().substring(0,8)}</strong>
+                        for customer <strong>${order.user?.name}</strong>.
+                    </p>
+                    <div style="background:#EEF2FF;border-radius:12px;padding:20px;margin:20px 0">
+                        <p style="margin:0;font-size:14px;color:#555">Order Amount: <strong style="color:#E50010">₹${order.totalPrice?.toFixed(2)}</strong></p>
+                        <p style="margin:8px 0 0;font-size:14px;color:#555">Payment: ${order.paymentMethod}</p>
+                        <p style="margin:8px 0 0;font-size:14px;color:#555">Deliver To: ${order.shippingAddress?.address}, ${order.shippingAddress?.city}</p>
+                    </div>
+                    <p style="color:#aaa;font-size:12px">— Graphpaper Delivery System</p>
+                </div>`,
+            }).catch(() => {});
+        }
+    } catch (e) {}
+
+    res.json(order);
+};
+
+// @desc    Get orders for delivery dashboard (available pool + my orders)
 // @route   GET /api/orders/delivery
 // @access  Private/DeliveryBoy
 const getMyDeliveries = async (req, res) => {
-    const orders = await Order.find({ assignedDeliveryBoy: req.user._id })
+    // Available: Confirmed orders not yet assigned to anyone
+    const available = await Order.find({ orderStatus: 'Confirmed', assignedDeliveryBoy: null })
         .populate('user', 'name email phone')
         .sort({ createdAt: -1 });
-    res.json(orders);
+
+    // Mine: orders assigned to this delivery boy
+    const mine = await Order.find({ assignedDeliveryBoy: req.user._id })
+        .populate('user', 'name email phone')
+        .sort({ createdAt: -1 });
+
+    res.json({ available, mine });
 };
 
 // @desc    Get all delivery boys (Admin - for assign dropdown)
@@ -288,6 +340,7 @@ module.exports = {
     updateOrderToDelivered,
     updateOrderToConfirmed,
     assignOrderToDeliveryBoy,
+    selfAssignOrder,
     updateDeliveryStatus,
     confirmCashCollected,
     getMyDeliveries,

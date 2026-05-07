@@ -4,10 +4,7 @@ dotenv.config({ path: '.env' });
 const User = require('./models/User');
 const Product = require('./models/Product');
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(async () => {
+mongoose.connect(process.env.MONGO_URI).then(async () => {
     console.log('Connected to DB');
     await User.deleteMany({});
     console.log('Users deleted');

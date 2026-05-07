@@ -173,4 +173,76 @@ const resetPassword = async (req, res) => {
     }
 };
 
-module.exports = { authUser, registerUser, forgotPassword, resetPassword };
+// @desc    Send OTP to phone number via Fast2SMS
+// @route   POST /api/auth/send-otp
+// @access  Public
+const sendOTP = async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) return res.status(400).json({ message: 'Phone number is required' });
+
+        const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+        if (cleanPhone.length !== 10) return res.status(400).json({ message: 'Invalid phone number' });
+
+        const user = await User.findOne({ phone: { $regex: cleanPhone, $options: 'i' } });
+        if (!user) return res.status(404).json({ message: 'No account found with this phone number. Please register first.' });
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        await user.save({ validateBeforeSave: false });
+
+        // Send via Fast2SMS
+        const fast2smsKey = process.env.FAST2SMS_API_KEY;
+        if (fast2smsKey) {
+            const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${fast2smsKey}&route=otp&variables_values=${otp}&flash=0&numbers=${cleanPhone}`;
+            await fetch(url).catch(() => {});
+        }
+
+        // In dev/test mode, return OTP in response
+        const isDev = !fast2smsKey;
+        res.json({ 
+            message: `OTP sent to +91-${cleanPhone.slice(0,5)}XXXXX`,
+            ...(isDev && { otp }) // only expose in dev when no API key
+        });
+    } catch (err) {
+        console.error('Send OTP error:', err);
+        res.status(500).json({ message: 'Failed to send OTP. Try again.' });
+    }
+};
+
+// @desc    Verify OTP and login
+// @route   POST /api/auth/verify-otp
+// @access  Public
+const verifyOTP = async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+        if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP are required' });
+
+        const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+        const user = await User.findOne({ phone: { $regex: cleanPhone, $options: 'i' } });
+
+        if (!user || user.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+        if (user.otpExpires < new Date()) return res.status(400).json({ message: 'OTP expired. Please request a new one.' });
+
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        user.isVerified = true;
+        await user.save({ validateBeforeSave: false });
+
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone,
+            isVerified: user.isVerified,
+            token: generateToken(user._id, user.role),
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { authUser, registerUser, forgotPassword, resetPassword, sendOTP, verifyOTP };

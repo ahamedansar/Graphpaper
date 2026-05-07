@@ -225,6 +225,28 @@ const OrderDetails = () => {
         )}
       </div>
 
+      {/* Delivery Partner Info */}
+      {order.assignedDeliveryBoy && (
+        <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#FEF9C3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ fontSize: '24px' }}>🚴</span>
+          </div>
+          <div>
+            <h3 style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: '#d97706' }}>Delivery Partner</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: '800', fontSize: '18px', color: '#1a1a1a' }}>
+                {typeof order.assignedDeliveryBoy === 'object' ? order.assignedDeliveryBoy.name : 'Assigned Partner'}
+              </span>
+              {typeof order.assignedDeliveryBoy === 'object' && order.assignedDeliveryBoy.phone && (
+                <a href={`tel:${order.assignedDeliveryBoy.phone}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', backgroundColor: '#F0FFF4', border: '1px solid #BBF7D0', borderRadius: '100px', fontSize: '13px', fontWeight: '700', color: '#16a34a', textDecoration: 'none' }}>
+                  📞 {order.assignedDeliveryBoy.phone}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Order Info Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
 

@@ -7,21 +7,16 @@ import { AuthContext } from '../context/AuthContext';
 
 // Smart image fallback — cycles by category so same-category products look different
 const CATEGORY_IMAGES = {
-  'T-Shirts': ['/images/tshirt_product_1774987745271.png', '/images/tshirt_1.png'],
-  'Tracksuits': ['/images/tracksuit_product_1774987761220.png', '/images/tshirt_product_1774987745271.png'],
-  'Sweatshirts': ['/images/tshirt_1.png', '/images/tshirt_product_1774987745271.png'],
-  'Hoodies': ['/images/tshirt_product_1774987745271.png', '/images/tshirt_1.png'],
-  'Jackets': ['/images/tracksuit_product_1774987761220.png', '/images/tshirt_1.png'],
+  'T-Shirts':    ['/images/product_tshirt.png'],
+  'Tracksuits':  ['/images/product_tracksuit.png'],
+  'Sweatshirts': ['/images/product_sweatshirt.png'],
+  'Hoodies':     ['/images/product_hoodie.png'],
+  'Jackets':     ['/images/product_jacket.png'],
 };
-const FALLBACK_IMAGES = [
-  '/images/tshirt_product_1774987745271.png',
-  '/images/tracksuit_product_1774987761220.png',
-  '/images/tshirt_1.png',
-];
-const getProductImage = (product, index) => {
-  if (product.image && !product.image.includes('placeholder')) return product.image;
-  const imgs = CATEGORY_IMAGES[product.category] || FALLBACK_IMAGES;
-  return imgs[index % imgs.length];
+const FALLBACK_IMAGES = ['/images/product_tshirt.png', '/images/product_tracksuit.png', '/images/product_hoodie.png'];
+const getProductImage = (product) => {
+  if (product.image && !product.image.includes('/images/tshirt_') && !product.image.includes('/images/tracksuit_')) return product.image;
+  return (CATEGORY_IMAGES[product.category] || FALLBACK_IMAGES)[0];
 };
 
 const GENDERS = ['All', 'Men', 'Women', 'Kids'];
@@ -204,7 +199,7 @@ const Products = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px' }}>
             {filteredProducts.map((product, index) => {
               const isWished = wishlist.includes(product._id);
-              const imgSrc = getProductImage(product, index);
+              const imgSrc = getProductImage(product);
               return (
                 <div
                   key={product._id}

@@ -209,6 +209,7 @@ const OrderList = () => {
                     {order.assignedDeliveryBoy && (
                       <span style={{ fontSize: '12px', color: '#888', fontWeight: '600' }}>
                         🚴 {typeof order.assignedDeliveryBoy === 'object' ? order.assignedDeliveryBoy.name : 'Assigned'}
+                        {typeof order.assignedDeliveryBoy === 'object' && order.assignedDeliveryBoy.phone && ` (${order.assignedDeliveryBoy.phone})`}
                         {order.deliveryDistance > 0 && ` • ${order.deliveryDistance}km • ₹${order.deliveryEarnings}`}
                       </span>
                     )}

@@ -7,6 +7,7 @@ const {
     updateOrderToDelivered,
     updateOrderToConfirmed,
     assignOrderToDeliveryBoy,
+    selfAssignOrder,
     updateDeliveryStatus,
     confirmCashCollected,
     getMyDeliveries,
@@ -26,6 +27,7 @@ router.route('/:id/pay').put(protect, admin, updateOrderToPaid);  // Admin marks
 router.route('/:id/cancel').put(protect, cancelOrder);              // User/Admin cancel
 router.route('/:id/confirm').put(protect, admin, updateOrderToConfirmed);
 router.route('/:id/assign').put(protect, admin, assignOrderToDeliveryBoy);
+router.route('/:id/self-assign').put(protect, deliveryBoy, selfAssignOrder);
 router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);
 router.route('/:id/delivery-status').put(protect, deliveryBoy, updateDeliveryStatus);
 router.route('/:id/cash-collected').put(protect, deliveryBoy, confirmCashCollected);
