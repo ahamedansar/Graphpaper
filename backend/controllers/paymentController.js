@@ -2,17 +2,20 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/Order');
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpay = () => {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        throw new Error('Razorpay keys not configured');
+    }
+    return new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+};
 
-// @desc    Create a Razorpay order
-// @route   POST /api/payment/create-order
-// @access  Private
 const createRazorpayOrder = async (req, res) => {
-    const { amount } = req.body; // amount in paise (₹1 = 100 paise)
+    const { amount } = req.body;
     try {
+        const razorpay = getRazorpay();
         const options = {
             amount: Math.round(amount * 100),
             currency: 'INR',
@@ -31,21 +34,18 @@ const createRazorpayOrder = async (req, res) => {
     }
 };
 
-// @desc    Verify Razorpay payment signature & mark order paid
-// @route   POST /api/payment/verify
-// @access  Private
 const verifyRazorpayPayment = async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
-    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
-    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const generatedSignature = hmac.digest('hex');
-
-    if (generatedSignature !== razorpay_signature) {
-        return res.status(400).json({ message: 'Payment verification failed. Invalid signature.' });
-    }
-
     try {
+        const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '');
+        hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+        const generatedSignature = hmac.digest('hex');
+
+        if (generatedSignature !== razorpay_signature) {
+            return res.status(400).json({ message: 'Payment verification failed. Invalid signature.' });
+        }
+
         const order = await Order.findById(orderId);
         if (!order) return res.status(404).json({ message: 'Order not found' });
 
