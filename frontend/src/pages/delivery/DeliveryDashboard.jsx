@@ -20,8 +20,18 @@ const DeliveryDashboard = () => {
   const { user, setUser } = useContext(AuthContext);
   const [available, setAvailable] = useState([]);
   const [mine, setMine]       = useState([]);
+  const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(null);
+
+  // New Delivery Boy state
+  const [newDbName, setNewDbName] = useState('');
+  const [newDbPhone, setNewDbPhone] = useState('');
+  const [showAddDb, setShowAddDb] = useState(false);
+  const [addingDb, setAddingDb] = useState(false);
+
+  // Selected delivery boy per order
+  const [selectedDb, setSelectedDb] = useState({});
 
   // Profile edit
   const [editingName, setEditingName] = useState(!user?.name || user.name === 'Delivery Boy');
@@ -32,17 +42,39 @@ const DeliveryDashboard = () => {
 
   const fetchDeliveries = async () => {
     try {
-      const { data } = await api.get('/orders/delivery', config);
-      setAvailable(data.available || []);
-      setMine(data.mine || []);
+      const [delRes, boysRes] = await Promise.all([
+        api.get('/orders/delivery', config),
+        api.get('/orders/delivery-boys', config)
+      ]);
+      setAvailable(delRes.data.available || []);
+      setMine(delRes.data.mine || []);
+      setDeliveryBoys(boysRes.data || []);
     } catch (err) {
-      toast.error('Failed to load deliveries');
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => { fetchDeliveries(); }, []);
+
+  const handleAddDeliveryBoy = async (e) => {
+    e.preventDefault();
+    if (!newDbName || !newDbPhone) return toast.error('Name and phone required');
+    setAddingDb(true);
+    try {
+      await api.post('/users/delivery-boy', { name: newDbName, phone: newDbPhone }, config);
+      toast.success('Delivery Boy added successfully!');
+      setNewDbName('');
+      setNewDbPhone('');
+      setShowAddDb(false);
+      fetchDeliveries();
+    } catch {
+      toast.error('Failed to add delivery boy');
+    } finally {
+      setAddingDb(false);
+    }
+  };
 
   // Save delivery boy name
   const saveName = async () => {
@@ -64,9 +96,12 @@ const DeliveryDashboard = () => {
 
   // Self-assign: delivery boy picks an available order
   const takeOrder = async (orderId) => {
+    const dbId = selectedDb[orderId];
+    if (!dbId) return toast.warning('Please select a delivery boy first!');
+    
     setUpdating(`take_${orderId}`);
     try {
-      await api.put(`/orders/${orderId}/self-assign`, {}, config);
+      await api.put(`/orders/${orderId}/self-assign`, { deliveryBoyId: dbId }, config);
       toast.success('✅ Order taken! Admin has been notified.');
       fetchDeliveries();
     } catch (err) {
@@ -162,6 +197,27 @@ const DeliveryDashboard = () => {
         </div>
       </div>
 
+      {/* ── Manage Delivery Boys ────────────────────── */}
+      <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px 28px', marginBottom: '28px', border: '1px solid #F1F5F9', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showAddDb ? '16px' : '0' }}>
+          <h2 style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <User size={18} color="#d97706" /> Delivery Personnel
+          </h2>
+          <button onClick={() => setShowAddDb(!showAddDb)} style={{ backgroundColor: showAddDb ? '#F1F5F9' : '#d97706', color: showAddDb ? '#1a1a1a' : '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+            {showAddDb ? 'Cancel' : '+ Add New'}
+          </button>
+        </div>
+        {showAddDb && (
+          <form onSubmit={handleAddDeliveryBoy} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#FAFAFA', padding: '16px', borderRadius: '12px' }}>
+            <input type="text" placeholder="Name" required value={newDbName} onChange={e => setNewDbName(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
+            <input type="tel" placeholder="Phone Number" required value={newDbPhone} onChange={e => setNewDbPhone(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
+            <button type="submit" disabled={addingDb} style={{ backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 24px', fontWeight: '700', cursor: addingDb ? 'not-allowed' : 'pointer' }}>
+              {addingDb ? 'Adding...' : 'Save'}
+            </button>
+          </form>
+        )}
+      </div>
+
       {/* ── Available Orders Pool ────────────────────── */}
       <div style={{ marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
@@ -220,16 +276,28 @@ const DeliveryDashboard = () => {
                       ))}
                     </div>
                   </div>
-                  <button
-                    onClick={() => takeOrder(order._id)}
-                    disabled={updating === `take_${order._id}`}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#d97706', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', flexShrink: 0, boxShadow: '0 4px 12px rgba(217,119,6,0.35)', transition: '0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#b45309'}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#d97706'}
-                  >
-                    <Truck size={16} />
-                    {updating === `take_${order._id}` ? 'Taking...' : 'Take This Delivery'}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <select
+                      value={selectedDb[order._id] || ''}
+                      onChange={e => setSelectedDb(prev => ({ ...prev, [order._id]: e.target.value }))}
+                      style={{ padding: '10px 14px', borderRadius: '12px', border: '1.5px solid #FDE68A', outline: 'none', fontSize: '14px', fontWeight: '700', backgroundColor: '#FFFBEB', color: '#92400E' }}
+                    >
+                      <option value="">Select Personnel...</option>
+                      {deliveryBoys.map(db => (
+                        <option key={db._id} value={db._id}>{db.name}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => takeOrder(order._id)}
+                      disabled={updating === `take_${order._id}`}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#d97706', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', flexShrink: 0, boxShadow: '0 4px 12px rgba(217,119,6,0.35)', transition: '0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#b45309'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#d97706'}
+                    >
+                      <Truck size={16} />
+                      {updating === `take_${order._id}` ? 'Taking...' : 'Take This Delivery'}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

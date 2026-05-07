@@ -232,9 +232,16 @@ const selfAssignOrder = async (req, res) => {
     if (order.orderStatus !== 'Confirmed') return res.status(400).json({ message: 'Order is not available for pickup' });
     if (order.assignedDeliveryBoy) return res.status(400).json({ message: 'Order already taken by another delivery boy' });
 
-    order.assignedDeliveryBoy = req.user._id;
+    // Use selected deliveryBoyId from body, or fallback to the logged-in user
+    const { deliveryBoyId } = req.body;
+    let assigningBoy = req.user;
+    if (deliveryBoyId) {
+        assigningBoy = await User.findById(deliveryBoyId) || req.user;
+    }
+
+    order.assignedDeliveryBoy = assigningBoy._id;
     order.orderStatus = 'Assigned';
-    order.deliveryUpdates.push({ status: 'Assigned', note: `Taken by delivery boy: ${req.user.name}` });
+    order.deliveryUpdates.push({ status: 'Assigned', note: `Taken by delivery boy: ${assigningBoy.name}` });
     await order.save();
 
     // Notify admin by email
@@ -243,12 +250,12 @@ const selfAssignOrder = async (req, res) => {
         if (admin?.email) {
             sendEmail({
                 to: admin.email,
-                subject: `🚚 Order #${order._id.toString().substring(0,8)} picked up by ${req.user.name}`,
+                subject: `🚚 Order #${order._id.toString().substring(0,8)} picked up by ${assigningBoy.name}`,
                 html: `<div style="font-family:'Inter',Arial,sans-serif;max-width:580px;margin:0 auto;padding:32px">
                     <h1 style="font-weight:900;letter-spacing:-2px;margin:0 0 4px">Graphpaper<span style="color:#E50010">.</span></h1>
                     <h2 style="color:#4F46E5;margin:24px 0 12px">🚴 Delivery Boy Has Taken An Order</h2>
                     <p style="color:#555;line-height:1.7">
-                        <strong>${req.user.name}</strong> has accepted Order <strong>#${order._id.toString().substring(0,8)}</strong>
+                        <strong>${assigningBoy.name}</strong> has accepted Order <strong>#${order._id.toString().substring(0,8)}</strong>
                         for customer <strong>${order.user?.name}</strong>.
                     </p>
                     <div style="background:#EEF2FF;border-radius:12px;padding:20px;margin:20px 0">

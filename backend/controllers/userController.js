@@ -95,4 +95,36 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
-module.exports = { toggleWishlistItem, getWishlist, getUserProfile, updateUserProfile };
+// @desc    Add a new delivery boy profile (by admin or from delivery portal)
+// @route   POST /api/users/delivery-boy
+// @access  Private (Admin or DeliveryBoy)
+const addDeliveryBoy = async (req, res) => {
+    try {
+        const { name, phone } = req.body;
+        if (!name || !phone) return res.status(400).json({ message: 'Name and phone are required' });
+
+        const email = `delivery_${Date.now()}@graphpaper.in`;
+        const password = Math.random().toString(36).slice(-8); // Random secure password
+
+        const user = await User.create({
+            name,
+            phone,
+            email,
+            password,
+            role: 'delivery_boy',
+            isVerified: true
+        });
+
+        res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            phone: user.phone,
+            role: user.role
+        });
+    } catch (error) {
+        console.error('Error adding delivery boy:', error);
+        res.status(500).json({ message: 'Failed to create delivery boy profile' });
+    }
+};
+
+module.exports = { toggleWishlistItem, getWishlist, getUserProfile, updateUserProfile, addDeliveryBoy };

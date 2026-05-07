@@ -21,7 +21,7 @@ const { protect, admin, deliveryBoy } = require('../middleware/authMiddleware');
 router.route('/').post(protect, addOrderItems).get(protect, admin, getOrders);
 router.route('/myorders').get(protect, getMyOrders);
 router.route('/delivery').get(protect, deliveryBoy, getMyDeliveries);
-router.route('/delivery-boys').get(protect, admin, getDeliveryBoys);
+router.route('/delivery-boys').get(protect, getDeliveryBoys);
 router.route('/:id').get(protect, getOrderById);
 router.route('/:id/pay').put(protect, admin, updateOrderToPaid);  // Admin marks as paid
 router.route('/:id/cancel').put(protect, cancelOrder);              // User/Admin cancel
