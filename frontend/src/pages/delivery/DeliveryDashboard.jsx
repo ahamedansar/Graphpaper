@@ -64,7 +64,9 @@ const DeliveryDashboard = () => {
       setShowAddDb(false);
       fetchDeliveries();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to add delivery boy');
+      console.error('Add Delivery Boy Error:', err);
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Server error. Please try a different phone number.';
+      toast.error(`Error: ${errorMsg}`);
     } finally {
       setAddingDb(false);
     }
@@ -156,27 +158,33 @@ const DeliveryDashboard = () => {
 
       {/* ── Manage Delivery Boys ────────────────────── */}
       <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '24px 28px', marginBottom: '28px', border: '1px solid #F1F5F9', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showAddDb ? '16px' : '0' }}>
-          <h2 style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <User size={18} color="#d97706" /> Delivery Personnel
-          </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <h2 style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <User size={18} color="#d97706" /> Delivery Personnel
+            </h2>
+            <span style={{ backgroundColor: '#F1F5F9', color: '#64748B', fontSize: '11px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px' }}>
+              TOTAL: {deliveryBoys.length}
+            </span>
+          </div>
           <button onClick={() => setShowAddDb(!showAddDb)} style={{ backgroundColor: showAddDb ? '#F1F5F9' : '#d97706', color: showAddDb ? '#1a1a1a' : '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
             {showAddDb ? 'Cancel' : '+ Add New'}
           </button>
         </div>
+        
         {showAddDb && (
-          <form onSubmit={handleAddDeliveryBoy} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#FAFAFA', padding: '16px', borderRadius: '12px' }}>
-            <input type="text" placeholder="Name" required value={newDbName} onChange={e => setNewDbName(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
-            <input type="tel" placeholder="Phone Number" required value={newDbPhone} onChange={e => setNewDbPhone(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
+          <form onSubmit={handleAddDeliveryBoy} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#FAFAFA', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+            <input type="text" placeholder="Full Name" required value={newDbName} onChange={e => setNewDbName(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
+            <input type="tel" placeholder="Phone Number (Unique)" required value={newDbPhone} onChange={e => setNewDbPhone(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px 14px', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }} />
             <button type="submit" disabled={addingDb} style={{ backgroundColor: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 24px', fontWeight: '700', cursor: addingDb ? 'not-allowed' : 'pointer' }}>
               {addingDb ? 'Adding...' : 'Save'}
             </button>
           </form>
         )}
 
-        {/* List of current personnel */}
-        {!showAddDb && deliveryBoys.length > 0 && (
-           <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {/* List of current personnel - ALWAYS VISIBLE */}
+        {deliveryBoys.length > 0 ? (
+           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
              {deliveryBoys.map(db => (
                <div key={db._id} style={{ backgroundColor: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '100px', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16a34a' }} />
@@ -185,6 +193,8 @@ const DeliveryDashboard = () => {
                </div>
              ))}
            </div>
+        ) : (
+          <p style={{ margin: 0, fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>No personnel added yet. Use the button above to add your team.</p>
         )}
       </div>
       </div>
