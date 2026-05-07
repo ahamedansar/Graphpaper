@@ -4,18 +4,13 @@ import api from '../utils/api';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Use sessionStorage for per-tab isolation (admin in tab1, client in tab2, delivery in tab3)
-  useEffect(() => {
+  // Read synchronously to prevent flash of unauthenticated state on refresh
+  const [user, setUser] = useState(() => {
     const userInfo = sessionStorage.getItem('userInfo');
-    if (userInfo) {
-      setUser(JSON.parse(userInfo));
-    }
-    setLoading(false);
-  }, []);
+    return userInfo ? JSON.parse(userInfo) : null;
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const login = async (email, password) => {
     try {

@@ -11,7 +11,8 @@ const OrderList = () => {
   const [loading, setLoading] = useState(true);
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState({});
-  const [deliveryDistance, setDeliveryDistance] = useState({}); // km per order
+  const [deliveryDistance, setDeliveryDistance] = useState({});
+  const [expandedOrder, setExpandedOrder] = useState(null); // km per order
 
   const fetchOrders = async () => {
     try {
@@ -139,9 +140,9 @@ const OrderList = () => {
                       </button>
                     </>
                   )}
-                  <Link to={`/orders/${order._id}`} className="btn rounded-circle p-2 border-0 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#252A33', width: '40px', height: '40px' }}>
+                  <button onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)} className="btn rounded-circle p-2 border-0 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#252A33', width: '40px', height: '40px' }}>
                     <Eye size={18} className="text-white" />
-                  </Link>
+                  </button>
                 </div>
               </div>
 
@@ -223,6 +224,34 @@ const OrderList = () => {
                   </span>
                 )}
               </div>
+
+              {/* Row 3: Expanded Details */}
+              {expandedOrder === order._id && (
+                <div className="mt-4 pt-4 border-top" style={{ borderColor: '#E2E8F0', animation: 'fadeInUp 0.3s ease' }}>
+                  <div className="row g-4">
+                    <div className="col-md-6">
+                      <h6 className="fw-bold mb-3" style={{ color: '#1E293B', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Order Items</h6>
+                      <div className="d-flex flex-column gap-2">
+                        {order.orderItems.map((item, index) => (
+                          <div key={index} className="d-flex align-items-center justify-content-between p-2 rounded-3" style={{ backgroundColor: '#F8FAFC' }}>
+                            <span className="small fw-semibold" style={{ color: '#334155' }}>{item.qty} × {item.name}</span>
+                            <span className="small fw-bold" style={{ color: '#0F172A' }}>₹{item.price * item.qty}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <h6 className="fw-bold mb-3" style={{ color: '#1E293B', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Shipping Details</h6>
+                      <div className="p-3 rounded-3" style={{ backgroundColor: '#F8FAFC' }}>
+                        <p className="mb-1 fw-semibold small" style={{ color: '#334155' }}>Address:</p>
+                        <p className="mb-2 small" style={{ color: '#64748B' }}>{order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.postalCode}</p>
+                        <p className="mb-1 fw-semibold small" style={{ color: '#334155' }}>Contact:</p>
+                        <p className="mb-0 small" style={{ color: '#64748B' }}>{order.user?.phone || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
