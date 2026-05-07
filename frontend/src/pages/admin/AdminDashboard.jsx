@@ -2,7 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
-import { ShoppingBag, Package, IndianRupee, Clock, CheckCircle, Truck, ArrowRight, TrendingUp, Users, AlertTriangle, BarChart3 } from 'lucide-react';
+import { ShoppingBag, Package, IndianRupee, Clock, CheckCircle, Truck, ArrowRight, TrendingUp, Users, AlertTriangle, BarChart3, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -63,6 +64,23 @@ const AdminDashboard = () => {
   ];
   const maxCount = Math.max(...orderStatusData.map(d => d.count), 1);
 
+  const exportToExcel = () => {
+    const data = orders.map(o => ({
+      'Order ID': o._id,
+      'Date': new Date(o.createdAt).toLocaleDateString(),
+      'Customer Name': o.user?.name || 'Guest',
+      'Total Amount': o.totalPrice,
+      'Payment Method': o.paymentMethod,
+      'Is Paid': o.isPaid ? 'Yes' : 'No',
+      'Order Status': o.orderStatus,
+      'Delivery Personnel': o.assignedDeliveryBoy?.name || 'Unassigned'
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders');
+    XLSX.writeFile(workbook, 'Graphpaper_Orders.xlsx');
+  };
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
 
@@ -76,7 +94,10 @@ const AdminDashboard = () => {
             Welcome back, <strong style={{ color: '#1E293B' }}>{user?.name?.split(' ')[0]}</strong>! Here's your business overview.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button onClick={exportToExcel} style={{ border: 'none', display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: '#10B981', color: '#fff', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: '700' }}>
+            <Download size={16} /> Export Excel
+          </button>
           <Link to="/admin/orders" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: '#4F46E5', color: '#fff', borderRadius: '12px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
             <ShoppingBag size={16} /> Manage Orders
           </Link>

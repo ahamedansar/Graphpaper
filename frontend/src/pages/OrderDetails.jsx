@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import { CheckCircle, Circle, Package, Truck, MapPin, Clock, Banknote, ArrowLeft, User, Printer, XCircle } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const STEPS = [
   { key: 'Pending',   label: 'Order Placed',  icon: Package,      desc: 'Your order has been received' },
@@ -57,58 +59,74 @@ const OrderDetails = () => {
   const currentIdx = STEPS.findIndex(s => s.key === order.orderStatus);
 
   const handlePrintInvoice = () => {
-    const itemRows = order.orderItems?.map(item => `
-      <tr style="border-bottom:1px solid #eee">
-        <td style="padding:10px 0">${item.name}${item.size ? ` (${item.size})` : ''}</td>
-        <td style="text-align:center">${item.qty}</td>
-        <td style="text-align:right">₹${item.price?.toFixed(2)}</td>
-        <td style="text-align:right;font-weight:700">₹${(item.qty * item.price)?.toFixed(2)}</td>
-      </tr>`).join('');
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Graphpaper.', 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Wholesale Platform', 14, 26);
+    doc.text('Kasaragod, Kerala – 671121', 14, 32);
+    doc.text('GSTIN: 32ABCPG1234A1Z5', 14, 38);
 
-    const html = `<!DOCTYPE html><html><head><title>Invoice #${order._id.substring(0,8)}</title>
-    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,Arial,sans-serif;color:#1a1a1a;padding:40px}
-    @media print{body{padding:20px}button{display:none!important}}
-    </style></head><body>
-    <div style="max-width:700px;margin:0 auto">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;border-bottom:3px solid #E50010;padding-bottom:24px">
-        <div><h1 style="font-size:2rem;font-weight:900;letter-spacing:-2px">Graphpaper<span style="color:#E50010">.</span></h1><p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700">Wholesale Platform</p><p style="color:#555;font-size:12px;margin-top:6px">Kasaragod, Kerala – 671121</p><p style="color:#555;font-size:12px">Factory: Tirupur, Tamil Nadu – 641604</p><p style="color:#333;font-size:11px;font-weight:800;margin-top:4px">GSTIN: 32ABCPG1234A1Z5</p></div>
-        <div style="text-align:right"><p style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:1px">Tax Invoice</p><h2 style="font-size:1.5rem;font-weight:900;color:#4F46E5">#${order._id.substring(0,8).toUpperCase()}</h2><p style="color:#888;font-size:13px">${new Date(order.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
-        <div><p style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Bill To</p>
-        <p style="font-weight:700">${order.user?.name || 'Customer'}</p><p style="color:#666;font-size:14px">${order.user?.email || ''}</p></div>
-        <div><p style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Ship To</p>
-        <p style="color:#666;font-size:14px">${order.shippingAddress?.address}<br/>${order.shippingAddress?.city}, ${order.shippingAddress?.postalCode}<br/>${order.shippingAddress?.country}</p></div>
-      </div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-        <thead><tr style="border-bottom:2px solid #1a1a1a">
-          <th style="text-align:left;padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px">Product</th>
-          <th style="text-align:center;padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px">Qty</th>
-          <th style="text-align:right;padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px">Rate</th>
-          <th style="text-align:right;padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px">Amount</th>
-        </tr></thead>
-        <tbody>${itemRows}</tbody>
-      </table>
-      <div style="display:flex;justify-content:flex-end">
-        <div style="min-width:260px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px"><span style="color:#888">Subtotal (Base)</span><span>₹${order.totalPrice?.toFixed(2)}</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#888">CGST @ 9%</span><span>₹${(order.totalPrice * 0.09)?.toFixed(2)}</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#888">SGST @ 9%</span><span>₹${(order.totalPrice * 0.09)?.toFixed(2)}</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px"><span style="color:#888">Shipping</span><span style="color:#16a34a">Free</span></div>
-          <div style="display:flex;justify-content:space-between;border-top:2px solid #1a1a1a;padding-top:12px"><span style="font-weight:900;font-size:16px">Total (incl. GST)</span><span style="font-weight:900;font-size:20px;color:#E50010">₹${(order.totalPrice * 1.18)?.toFixed(2)}</span></div>
-        </div>
-      </div>
-      <div style="margin-top:40px;padding-top:24px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
-        <p style="font-size:12px;color:#aaa">Payment: <strong>${order.paymentMethod}</strong> — ${order.isPaid ? '✓ Paid' : 'Pending'}</p>
-        <p style="font-size:11px;color:#bbb">Thank you for your business!</p>
-      </div>
-      <div style="text-align:center;margin-top:20px">
-        <button onclick="window.print()" style="background:#1a1a1a;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px">Print / Save as PDF</button>
-      </div>
-    </div></body></html>`;
-    const w = window.open('', '_blank');
-    w.document.write(html);
-    w.document.close();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Tax Invoice #${order._id.substring(0,8).toUpperCase()}`, 130, 20);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString('en-IN')}`, 130, 26);
+    doc.text(`Payment: ${order.paymentMethod} (${order.isPaid ? 'Paid' : 'Pending'})`, 130, 32);
+
+    // Bill To & Ship To
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bill To:', 14, 50);
+    doc.text('Ship To:', 100, 50);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.user?.name || 'Customer', 14, 56);
+    doc.text(order.user?.email || '', 14, 62);
+    
+    const addressLines = doc.splitTextToSize(`${order.shippingAddress?.address}, ${order.shippingAddress?.city}, ${order.shippingAddress?.postalCode}`, 80);
+    doc.text(addressLines, 100, 56);
+
+    // Table
+    const tableColumn = ["Product", "Qty", "Rate (Rs)", "Amount (Rs)"];
+    const tableRows = [];
+
+    order.orderItems?.forEach(item => {
+      const rowData = [
+        `${item.name} ${item.size ? `(${item.size})` : ''}`,
+        item.qty,
+        item.price.toFixed(2),
+        (item.qty * item.price).toFixed(2)
+      ];
+      tableRows.push(rowData);
+    });
+
+    doc.autoTable({
+      startY: 80,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'striped',
+      headStyles: { fillColor: [26, 26, 26] },
+      margin: { top: 80 }
+    });
+
+    const finalY = doc.lastAutoTable.finalY || 80;
+
+    // Totals
+    doc.setFontSize(11);
+    doc.text(`Subtotal: Rs ${order.totalPrice?.toFixed(2)}`, 140, finalY + 10);
+    doc.text('CGST (9%): Rs ' + (order.totalPrice * 0.09).toFixed(2), 140, finalY + 18);
+    doc.text('SGST (9%): Rs ' + (order.totalPrice * 0.09).toFixed(2), 140, finalY + 26);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total (incl. GST): Rs ${(order.totalPrice * 1.18).toFixed(2)}`, 140, finalY + 36);
+
+    doc.save(`Invoice_${order._id.substring(0,8)}.pdf`);
   };
 
   return (
