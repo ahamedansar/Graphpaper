@@ -11,6 +11,7 @@ const OrderList = () => {
   const [loading, setLoading] = useState(true);
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState({});
+  const [deliveryDistance, setDeliveryDistance] = useState({}); // km per order
 
   const fetchOrders = async () => {
     try {
@@ -47,14 +48,12 @@ const OrderList = () => {
 
   const assignOrder = async (orderId) => {
     const deliveryBoyId = selectedDeliveryBoy[orderId];
-    if (!deliveryBoyId) {
-      toast.warning('Please select a delivery boy first');
-      return;
-    }
+    if (!deliveryBoyId) { toast.warning('Please select a delivery boy first'); return; }
+    const km = parseFloat(deliveryDistance[orderId]) || 0;
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      await api.put(`/orders/${orderId}/assign`, { deliveryBoyId }, config);
-      toast.success('Order assigned to delivery boy!');
+      await api.put(`/orders/${orderId}/assign`, { deliveryBoyId, deliveryDistance: km }, config);
+      toast.success(`Order assigned! Earnings: ₹${(km * 6).toFixed(2)} for ${km}km`);
       fetchOrders();
     } catch (err) {
       toast.error('Failed to assign order');
@@ -159,33 +158,61 @@ const OrderList = () => {
 
                 {/* CONFIRMED — Show Assign to Delivery Boy */}
                 {order.orderStatus === 'Confirmed' && (
-                  <div className="d-flex align-items-center gap-2 flex-grow-1">
-                    <select
-                      className="form-select border-0 rounded-pill fw-semibold small"
-                      style={{ backgroundColor: '#EEF2FF', color: '#4F46E5', maxWidth: '260px' }}
-                      value={selectedDeliveryBoy[order._id] || ''}
-                      onChange={(e) => setSelectedDeliveryBoy(prev => ({ ...prev, [order._id]: e.target.value }))}
-                    >
-                      <option value="">Select Delivery Boy...</option>
-                      {deliveryBoys.map(db => (
-                        <option key={db._id} value={db._id}>{db.name} ({db.phone || db.email})</option>
-                      ))}
-                    </select>
-                    <button 
-                      onClick={() => assignOrder(order._id)} 
-                      className="btn rounded-pill px-4 py-2 fw-bold text-white border-0 d-flex align-items-center gap-2 flex-shrink-0"
-                      style={{ backgroundColor: '#7C3AED', fontSize: '13px' }}
-                    >
-                      <UserCheck size={16} /> Assign
-                    </button>
+                  <div className="d-flex flex-column gap-2 flex-grow-1">
+                    <div className="d-flex align-items-center gap-2">
+                      <select
+                        className="form-select border-0 rounded-pill fw-semibold small"
+                        style={{ backgroundColor: '#EEF2FF', color: '#4F46E5', maxWidth: '220px' }}
+                        value={selectedDeliveryBoy[order._id] || ''}
+                        onChange={(e) => setSelectedDeliveryBoy(prev => ({ ...prev, [order._id]: e.target.value }))}
+                      >
+                        <option value="">Select Delivery Boy...</option>
+                        {deliveryBoys.map(db => (
+                          <option key={db._id} value={db._id}>{db.name} — {db.phone || db.email}</option>
+                        ))}
+                      </select>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          placeholder="km"
+                          value={deliveryDistance[order._id] || ''}
+                          onChange={e => setDeliveryDistance(prev => ({ ...prev, [order._id]: e.target.value }))}
+                          className="form-control border-0 fw-bold text-center"
+                          style={{ width: '70px', backgroundColor: '#FEF9C3', color: '#d97706', borderRadius: '100px', fontSize: '13px' }}
+                        />
+                        {deliveryDistance[order._id] > 0 && (
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#16a34a', whiteSpace: 'nowrap' }}>
+                            ₹{(parseFloat(deliveryDistance[order._id]) * 6).toFixed(0)} earnings
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => assignOrder(order._id)}
+                        className="btn rounded-pill px-4 py-2 fw-bold text-white border-0 d-flex align-items-center gap-2 flex-shrink-0"
+                        style={{ backgroundColor: '#7C3AED', fontSize: '13px' }}
+                      >
+                        <UserCheck size={16} /> Assign
+                      </button>
+                    </div>
+                    <p style={{ fontSize: '11px', color: '#888', margin: 0, paddingLeft: '4px' }}>Enter distance in km — ₹6/km (₹30 per 5km)</p>
                   </div>
                 )}
 
                 {/* ASSIGNED/IN TRANSIT */}
                 {['Assigned', 'Picked Up', 'On the Way'].includes(order.orderStatus) && (
-                  <span className="badge rounded-pill px-3 py-2" style={{ backgroundColor: '#EEF2FF', color: '#4F46E5', fontSize: '13px' }}>
-                    <Truck size={14} className="me-1" /> {order.orderStatus}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span className="badge rounded-pill px-3 py-2" style={{ backgroundColor: '#EEF2FF', color: '#4F46E5', fontSize: '13px' }}>
+                      <Truck size={14} className="me-1" /> {order.orderStatus}
+                    </span>
+                    {order.assignedDeliveryBoy && (
+                      <span style={{ fontSize: '12px', color: '#888', fontWeight: '600' }}>
+                        🚴 {typeof order.assignedDeliveryBoy === 'object' ? order.assignedDeliveryBoy.name : 'Assigned'}
+                        {order.deliveryDistance > 0 && ` • ${order.deliveryDistance}km • ₹${order.deliveryEarnings}`}
+                      </span>
+                    )}
+                  </div>
                 )}
 
                 {/* DELIVERED */}

@@ -148,13 +148,18 @@ const getOrders = async (req, res) => {
 // @route   PUT /api/orders/:id/assign
 // @access  Private/Admin
 const assignOrderToDeliveryBoy = async (req, res) => {
-    const { deliveryBoyId } = req.body;
+    const { deliveryBoyId, deliveryDistance } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (order) {
+        const km = parseFloat(deliveryDistance) || 0;
+        const earnings = parseFloat((km * 6).toFixed(2)); // ₹6/km = ₹30 per 5km
+
         order.assignedDeliveryBoy = deliveryBoyId;
         order.orderStatus = 'Assigned';
-        order.deliveryUpdates.push({ status: 'Assigned', note: 'Order assigned to delivery boy' });
+        order.deliveryDistance = km;
+        order.deliveryEarnings = earnings;
+        order.deliveryUpdates.push({ status: 'Assigned', note: `Assigned. Distance: ${km}km. Earnings: ₹${earnings}` });
         const updatedOrder = await order.save();
         res.json(updatedOrder);
     } else {

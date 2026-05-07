@@ -83,6 +83,8 @@ const orderSchema = mongoose.Schema(
                 timestamp: { type: Date, default: Date.now },
             }
         ],
+        deliveryDistance: { type: Number, default: 0 },      // km entered by admin
+        deliveryEarnings: { type: Number, default: 0 },      // ₹6/km (₹30 per 5km)
         deliveredAt: {
             type: Date,
         },

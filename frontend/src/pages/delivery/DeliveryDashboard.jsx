@@ -79,13 +79,15 @@ const DeliveryDashboard = () => {
             <h1 style={{ fontWeight: '900', fontSize: '1.75rem', color: '#1a1a1a', margin: '0 0 6px', letterSpacing: '-0.5px' }}>My Deliveries</h1>
             <p style={{ color: '#888', margin: 0, fontSize: '15px' }}>Update status for each assigned order below.</p>
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {[
               { label: 'Active', value: activeOrders.length, color: '#d97706', bg: '#FEF9C3', border: '#FDE68A' },
-              { label: 'Completed', value: completedOrders.length, color: '#16a34a', bg: '#DCFCE7', border: '#BBF7D0' }
+              { label: 'Completed', value: completedOrders.length, color: '#16a34a', bg: '#DCFCE7', border: '#BBF7D0' },
+              { label: 'Total Km', value: `${orders.reduce((s, o) => s + (o.deliveryDistance || 0), 0)} km`, color: '#4F46E5', bg: '#EEF2FF', border: '#C7D2FE' },
+              { label: 'Earnings', value: `₹${orders.reduce((s, o) => s + (o.deliveryEarnings || 0), 0).toFixed(0)}`, color: '#16a34a', bg: '#F0FFF4', border: '#BBF7D0' },
             ].map(s => (
               <div key={s.label} style={{ backgroundColor: s.bg, border: `1px solid ${s.border}`, borderRadius: '14px', padding: '14px 22px', textAlign: 'center', minWidth: '90px' }}>
-                <div style={{ fontWeight: '900', fontSize: '1.75rem', color: s.color, lineHeight: 1, letterSpacing: '-1px' }}>{s.value}</div>
+                <div style={{ fontWeight: '900', fontSize: '1.5rem', color: s.color, lineHeight: 1, letterSpacing: '-1px' }}>{s.value}</div>
                 <div style={{ fontSize: '11px', color: s.color, fontWeight: '700', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</div>
               </div>
             ))}
@@ -180,13 +182,18 @@ const DeliveryDashboard = () => {
                         ))}
                       </div>
                     </div>
-                    {/* Total */}
+                    {/* Total + Earnings */}
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <div style={{ marginTop: '2px', color: '#16a34a', flexShrink: 0 }}><Banknote size={16} /></div>
                       <div>
                         <div style={{ fontSize: '11px', color: '#888', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Amount</div>
                         <div style={{ fontWeight: '800', fontSize: '18px', color: '#16a34a' }}>₹{order.totalPrice.toFixed(2)}</div>
                         <div style={{ fontSize: '12px', color: '#888' }}>{order.isPaid ? '✓ Paid' : `Collect via ${order.paymentMethod}`}</div>
+                        {order.deliveryDistance > 0 && (
+                          <div style={{ marginTop: '6px', display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#F0FFF4', border: '1px solid #BBF7D0', borderRadius: '8px', padding: '4px 10px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '700', color: '#16a34a' }}>🚴 {order.deliveryDistance}km → Your Pay: ₹{order.deliveryEarnings}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
