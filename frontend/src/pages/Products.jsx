@@ -264,6 +264,11 @@ const Products = () => {
                       Low Stock
                     </div>
                   )}
+                  {!product.countInStock < 20 && product.createdAt && (new Date() - new Date(product.createdAt)) < 30 * 24 * 60 * 60 * 1000 && (
+                    <div style={{ position: 'absolute', top: '12px', left: '12px', backgroundColor: '#4F46E5', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '4px 10px', borderRadius: '100px' }}>
+                      ✨ New Arrival
+                    </div>
+                  )}
                 </div>
               );
             })}

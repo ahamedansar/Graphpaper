@@ -71,7 +71,7 @@ const OrderDetails = () => {
     </style></head><body>
     <div style="max-width:700px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;border-bottom:3px solid #E50010;padding-bottom:24px">
-        <div><h1 style="font-size:2rem;font-weight:900;letter-spacing:-2px">Graphpaper<span style="color:#E50010">.</span></h1><p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700">Wholesale Platform</p></div>
+        <div><h1 style="font-size:2rem;font-weight:900;letter-spacing:-2px">Graphpaper<span style="color:#E50010">.</span></h1><p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700">Wholesale Platform</p><p style="color:#555;font-size:12px;margin-top:6px">Kasaragod, Kerala – 671121</p><p style="color:#555;font-size:12px">Factory: Tirupur, Tamil Nadu – 641604</p><p style="color:#333;font-size:11px;font-weight:800;margin-top:4px">GSTIN: 32ABCPG1234A1Z5</p></div>
         <div style="text-align:right"><p style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:1px">Tax Invoice</p><h2 style="font-size:1.5rem;font-weight:900;color:#4F46E5">#${order._id.substring(0,8).toUpperCase()}</h2><p style="color:#888;font-size:13px">${new Date(order.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
@@ -90,10 +90,12 @@ const OrderDetails = () => {
         <tbody>${itemRows}</tbody>
       </table>
       <div style="display:flex;justify-content:flex-end">
-        <div style="min-width:240px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px"><span style="color:#888">Subtotal</span><span>₹${order.totalPrice?.toFixed(2)}</span></div>
+        <div style="min-width:260px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px"><span style="color:#888">Subtotal (Base)</span><span>₹${order.totalPrice?.toFixed(2)}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#888">CGST @ 9%</span><span>₹${(order.totalPrice * 0.09)?.toFixed(2)}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:#888">SGST @ 9%</span><span>₹${(order.totalPrice * 0.09)?.toFixed(2)}</span></div>
           <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px"><span style="color:#888">Shipping</span><span style="color:#16a34a">Free</span></div>
-          <div style="display:flex;justify-content:space-between;border-top:2px solid #1a1a1a;padding-top:12px"><span style="font-weight:900;font-size:16px">Total</span><span style="font-weight:900;font-size:20px;color:#E50010">₹${order.totalPrice?.toFixed(2)}</span></div>
+          <div style="display:flex;justify-content:space-between;border-top:2px solid #1a1a1a;padding-top:12px"><span style="font-weight:900;font-size:16px">Total (incl. GST)</span><span style="font-weight:900;font-size:20px;color:#E50010">₹${(order.totalPrice * 1.18)?.toFixed(2)}</span></div>
         </div>
       </div>
       <div style="margin-top:40px;padding-top:24px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
