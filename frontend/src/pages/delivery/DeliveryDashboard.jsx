@@ -63,8 +63,8 @@ const DeliveryDashboard = () => {
       setNewDbPhone('');
       setShowAddDb(false);
       fetchDeliveries();
-    } catch {
-      toast.error('Failed to add delivery boy');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to add delivery boy');
     } finally {
       setAddingDb(false);
     }
@@ -173,6 +173,20 @@ const DeliveryDashboard = () => {
             </button>
           </form>
         )}
+
+        {/* List of current personnel */}
+        {!showAddDb && deliveryBoys.length > 0 && (
+           <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+             {deliveryBoys.map(db => (
+               <div key={db._id} style={{ backgroundColor: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '100px', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16a34a' }} />
+                 <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B' }}>{db.name}</span>
+                 <span style={{ fontSize: '11px', color: '#64748B' }}>({db.phone})</span>
+               </div>
+             ))}
+           </div>
+        )}
+      </div>
       </div>
 
       {/* ── Available Orders Pool ────────────────────── */}

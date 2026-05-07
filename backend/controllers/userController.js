@@ -103,6 +103,12 @@ const addDeliveryBoy = async (req, res) => {
         const { name, phone } = req.body;
         if (!name || !phone) return res.status(400).json({ message: 'Name and phone are required' });
 
+        // Check if phone already exists
+        const existingUser = await User.findOne({ phone });
+        if (existingUser) {
+            return res.status(400).json({ message: 'This phone number is already registered to another account.' });
+        }
+
         const email = `delivery_${Date.now()}@graphpaper.in`;
         const password = Math.random().toString(36).slice(-8); // Random secure password
 
