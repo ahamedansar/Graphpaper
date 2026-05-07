@@ -54,6 +54,7 @@ const OrderDetails = () => {
 
   const canCancel = ['Pending', 'Confirmed'].includes(order.orderStatus);
   const isDelivered = order.orderStatus === 'Delivered';
+  const currentIdx = STEPS.findIndex(s => s.key === order.orderStatus);
 
   const handlePrintInvoice = () => {
     const itemRows = order.orderItems?.map(item => `
